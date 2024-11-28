@@ -5,9 +5,9 @@ import anthropic
 
 def translate_text(text, target_lang):
     # Get API key from environment
-    api_key = os.getenv('CLAUDE_API_KEY')
+    api_key = os.getenv('ANTHROPIC_API_KEY')
     if not api_key:
-        raise ValueError("CLAUDE_API_KEY environment variable not set")
+        raise ValueError("ANTHROPIC_API_KEY environment variable not set")
     
     # Map language codes to full names
     lang_map = {
