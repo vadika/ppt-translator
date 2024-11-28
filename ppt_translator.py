@@ -25,7 +25,10 @@ def translate_text(text, target_lang):
             temperature=0,
             messages=[{"role": "user", "content": prompt}]
         )
-        return message.content
+        # Extract the text content and ensure it's a string
+        if isinstance(message.content, list):
+            return message.content[0].text if message.content else text
+        return str(message.content)
     except Exception as e:
         print(f"Translation error: {e}")
         return text
