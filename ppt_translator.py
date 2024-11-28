@@ -67,7 +67,7 @@ def translate_presentation(input_file, target_lang):
     for slide_num, slide in enumerate(prs.slides, 1):
         print(f"\nProcessing slide {slide_num}/{total_slides}")
         for shape in slide.shapes:
-            print(f"Debug: Shape type = {shape.shape_type}")  # Debug info
+            print(f"Debug: Shape type = {shape.shape_type}, Shape name = {shape.name}, Shape class = {type(shape).__name__}")
             
             # Handle different types of SmartArt and Placeholders
             if shape.shape_type in [6, 7]:  # GROUP, DIAGRAM
@@ -79,7 +79,7 @@ def translate_presentation(input_file, target_lang):
                 # Recursively process shapes inside placeholder
                 if hasattr(shape, 'shapes'):
                     for subshape in shape.shapes:
-                        print(f"Debug: Placeholder subshape type = {subshape.shape_type}")
+                        print(f"Debug: Placeholder subshape type = {subshape.shape_type}, Shape name = {subshape.name}, Shape class = {type(subshape).__name__}")
                         if subshape.shape_type in [6, 7]:
                             translate_smartart(subshape, target_lang)
                         elif subshape.shape_type == 19:
@@ -96,7 +96,7 @@ def translate_presentation(input_file, target_lang):
             # Check for nested shapes in other shape types
             if hasattr(shape, 'shapes') and shape.shape_type != 14:  # Skip placeholders as they're handled above
                 for subshape in shape.shapes:
-                    print(f"Debug: Subshape type = {subshape.shape_type}")
+                    print(f"Debug: Subshape type = {subshape.shape_type}, Shape name = {subshape.name}, Shape class = {type(subshape).__name__}")
                     if subshape.shape_type in [6, 7]:
                         translate_smartart(subshape, target_lang)
     
