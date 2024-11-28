@@ -49,14 +49,30 @@ def translate_table(table, target_lang):
 
 def translate_smartart(shape, target_lang):
     """Recursively translate text in SmartArt graphics"""
+    # Handle text in the shape itself
     if hasattr(shape, 'text'):
         shape_type = "SmartArt text"
         shape.text = translate_text(shape.text, target_lang, shape_type)
+    
+    # Handle text in text frames
+    if hasattr(shape, 'text_frame'):
+        shape_type = "SmartArt text frame"
+        shape.text_frame.text = translate_text(shape.text_frame.text, target_lang, shape_type)
+        
+        # Process paragraphs in text frame
+        for paragraph in shape.text_frame.paragraphs:
+            paragraph.text = translate_text(paragraph.text, target_lang, "SmartArt paragraph")
     
     # Process child shapes if they exist
     if hasattr(shape, 'shapes'):
         for child_shape in shape.shapes:
             translate_smartart(child_shape, target_lang)
+            
+    # Handle SmartArt data
+    if hasattr(shape, 'placeholders'):
+        for placeholder in shape.placeholders:
+            if hasattr(placeholder, 'text'):
+                placeholder.text = translate_text(placeholder.text, target_lang, "SmartArt placeholder")
 
 def debug_print(message, verbose):
     if verbose:
