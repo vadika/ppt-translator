@@ -1,6 +1,6 @@
 import argparse
 from pptx import Presentation
-from pptx.shapes.graphfrm import PlaceholderGraphicFrame
+from pptx.shapes.placeholder import PlaceholderGraphicFrame
 import os
 import anthropic
 
