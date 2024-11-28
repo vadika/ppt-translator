@@ -93,7 +93,7 @@ def translate_presentation(input_file, target_lang, verbose=False):
             # Handle different types of SmartArt and Placeholders
             if shape.shape_type in [6, 7]:  # GROUP, DIAGRAM
                 translate_smartart(shape, target_lang)
-            elif shape.shape_type == 14 or (shape.shape_type is None and isinstance(shape, PlaceholderGraphicFrame)):  # PLACEHOLDER
+            elif shape.shape_type == 14 or shape.shape_type is None:  # PLACEHOLDER or shape with None type
                 if hasattr(shape, "text"):
                     shape_type = "Placeholder text"
                     shape.text = translate_text(shape.text, target_lang, shape_type)
