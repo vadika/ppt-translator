@@ -1,14 +1,33 @@
 import argparse
 from pptx import Presentation
-from googletrans import Translator
 import os
+import anthropic
 
 def translate_text(text, target_lang):
-    translator = Translator()
+    # Get API key from environment
+    api_key = os.getenv('CLAUDE_API_KEY')
+    if not api_key:
+        raise ValueError("CLAUDE_API_KEY environment variable not set")
+    
+    # Map language codes to full names
+    lang_map = {
+        'ru': 'Russian',
+        'fi': 'Finnish',
+        'et': 'Estonian'
+    }
+    
+    client = anthropic.Anthropic(api_key=api_key)
     try:
-        result = translator.translate(text, dest=target_lang)
-        return result.text
-    except:
+        prompt = f"Translate the following text to {lang_map[target_lang]}. Only return the translation, no explanations:\n\n{text}"
+        message = client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
+            temperature=0,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return message.content
+    except Exception as e:
+        print(f"Translation error: {e}")
         return text
 
 def translate_presentation(input_file, target_lang):
