@@ -3,7 +3,12 @@ from pptx import Presentation
 import os
 import anthropic
 
-def translate_text(text, target_lang):
+def translate_text(text, target_lang, shape_type=""):
+    if not text.strip():  # Skip empty or whitespace-only text
+        return text
+        
+    print(f"Translating {shape_type}: '{text[:50]}{'...' if len(text) > 50 else ''}'")
+    
     # Get API key from environment
     api_key = os.getenv('ANTHROPIC_API_KEY')
     if not api_key:
@@ -35,13 +40,17 @@ def translate_text(text, target_lang):
 
 def translate_presentation(input_file, target_lang):
     # Open presentation
+    print(f"\nOpening presentation: {input_file}")
     prs = Presentation(input_file)
     
     # Translate each slide's text content
-    for slide in prs.slides:
+    total_slides = len(prs.slides)
+    for slide_num, slide in enumerate(prs.slides, 1):
+        print(f"\nProcessing slide {slide_num}/{total_slides}")
         for shape in slide.shapes:
             if hasattr(shape, "text"):
-                shape.text = translate_text(shape.text, target_lang)
+                shape_type = type(shape).__name__
+                shape.text = translate_text(shape.text, target_lang, shape_type)
     
     # Generate output filename
     file_name, file_ext = os.path.splitext(input_file)
@@ -59,7 +68,9 @@ def main():
     
     args = parser.parse_args()
     
+    print(f"\nStarting translation to {args.language.upper()}...")
     output_file = translate_presentation(args.input_file, args.language)
+    print(f"\nTranslation complete!")
     print(f"Translated presentation saved as: {output_file}")
 
 if __name__ == "__main__":
