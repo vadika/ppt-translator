@@ -39,6 +39,17 @@ def translate_text(text, target_lang, shape_type=""):
         print(f"Translation error: {e}")
         return text
 
+def translate_smartart(shape, target_lang):
+    """Recursively translate text in SmartArt graphics"""
+    if hasattr(shape, 'text'):
+        shape_type = "SmartArt text"
+        shape.text = translate_text(shape.text, target_lang, shape_type)
+    
+    # Process child shapes if they exist
+    if hasattr(shape, 'shapes'):
+        for child_shape in shape.shapes:
+            translate_smartart(child_shape, target_lang)
+
 def translate_presentation(input_file, target_lang):
     # Open presentation
     print(f"\nOpening presentation: {input_file}")
@@ -49,7 +60,9 @@ def translate_presentation(input_file, target_lang):
     for slide_num, slide in enumerate(prs.slides, 1):
         print(f"\nProcessing slide {slide_num}/{total_slides}")
         for shape in slide.shapes:
-            if hasattr(shape, "text"):
+            if shape.shape_type == 6:  # MSO_SHAPE_TYPE.GROUP (SmartArt)
+                translate_smartart(shape, target_lang)
+            elif hasattr(shape, "text"):
                 shape_type = type(shape).__name__
                 shape.text = translate_text(shape.text, target_lang, shape_type)
     
