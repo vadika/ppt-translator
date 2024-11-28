@@ -7,7 +7,8 @@ def translate_text(text, target_lang, shape_type=""):
     if not text.strip():  # Skip empty or whitespace-only text
         return text
         
-    print(f"Translating {shape_type}: '{text[:50]}{'...' if len(text) > 50 else ''}'")
+    print(f"\nTranslating {shape_type}:")
+    print(f"Original: '{text[:50]}{'...' if len(text) > 50 else ''}'")
     
     # Get API key from environment
     api_key = os.getenv('ANTHROPIC_API_KEY')
@@ -31,9 +32,9 @@ def translate_text(text, target_lang, shape_type=""):
             messages=[{"role": "user", "content": prompt}]
         )
         # Extract the text content and ensure it's a string
-        if isinstance(message.content, list):
-            return message.content[0].text if message.content else text
-        return str(message.content)
+        translated = message.content[0].text if isinstance(message.content, list) else str(message.content)
+        print(f"Translated: '{translated[:50]}{'...' if len(translated) > 50 else ''}'")
+        return translated
     except Exception as e:
         print(f"Translation error: {e}")
         return text
