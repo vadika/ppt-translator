@@ -67,13 +67,23 @@ def translate_presentation(input_file, target_lang):
     for slide_num, slide in enumerate(prs.slides, 1):
         print(f"\nProcessing slide {slide_num}/{total_slides}")
         for shape in slide.shapes:
-            if shape.shape_type == 6:  # MSO_SHAPE_TYPE.GROUP (SmartArt)
+            print(f"Debug: Shape type = {shape.shape_type}")  # Debug info
+            
+            # Handle different types of SmartArt (6=GROUP, 7=DIAGRAM)
+            if shape.shape_type in [6, 7]:  
                 translate_smartart(shape, target_lang)
-            elif shape.shape_type == 19:  # MSO_SHAPE_TYPE.TABLE
+            elif shape.shape_type == 19:  # TABLE
                 translate_table(shape.table, target_lang)
             elif hasattr(shape, "text"):
                 shape_type = type(shape).__name__
                 shape.text = translate_text(shape.text, target_lang, shape_type)
+            
+            # Check for nested shapes
+            if hasattr(shape, 'shapes'):
+                for subshape in shape.shapes:
+                    print(f"Debug: Subshape type = {subshape.shape_type}")  # Debug info
+                    if subshape.shape_type in [6, 7]:
+                        translate_smartart(subshape, target_lang)
     
     # Generate output filename
     file_name, file_ext = os.path.splitext(input_file)
