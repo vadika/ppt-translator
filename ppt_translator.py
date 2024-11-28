@@ -69,19 +69,34 @@ def translate_presentation(input_file, target_lang):
         for shape in slide.shapes:
             print(f"Debug: Shape type = {shape.shape_type}")  # Debug info
             
-            # Handle different types of SmartArt (6=GROUP, 7=DIAGRAM)
-            if shape.shape_type in [6, 7]:  
+            # Handle different types of SmartArt and Placeholders
+            if shape.shape_type in [6, 7]:  # GROUP, DIAGRAM
                 translate_smartart(shape, target_lang)
+            elif shape.shape_type == 14:  # PLACEHOLDER
+                if hasattr(shape, "text"):
+                    shape_type = "Placeholder text"
+                    shape.text = translate_text(shape.text, target_lang, shape_type)
+                # Recursively process shapes inside placeholder
+                if hasattr(shape, 'shapes'):
+                    for subshape in shape.shapes:
+                        print(f"Debug: Placeholder subshape type = {subshape.shape_type}")
+                        if subshape.shape_type in [6, 7]:
+                            translate_smartart(subshape, target_lang)
+                        elif subshape.shape_type == 19:
+                            translate_table(subshape.table, target_lang)
+                        elif hasattr(subshape, "text"):
+                            shape_type = type(subshape).__name__
+                            subshape.text = translate_text(subshape.text, target_lang, shape_type)
             elif shape.shape_type == 19:  # TABLE
                 translate_table(shape.table, target_lang)
             elif hasattr(shape, "text"):
                 shape_type = type(shape).__name__
                 shape.text = translate_text(shape.text, target_lang, shape_type)
             
-            # Check for nested shapes
-            if hasattr(shape, 'shapes'):
+            # Check for nested shapes in other shape types
+            if hasattr(shape, 'shapes') and shape.shape_type != 14:  # Skip placeholders as they're handled above
                 for subshape in shape.shapes:
-                    print(f"Debug: Subshape type = {subshape.shape_type}")  # Debug info
+                    print(f"Debug: Subshape type = {subshape.shape_type}")
                     if subshape.shape_type in [6, 7]:
                         translate_smartart(subshape, target_lang)
     
