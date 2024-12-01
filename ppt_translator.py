@@ -22,7 +22,8 @@ def translate_text(text, target_lang, shape_type=""):
         'fi': 'Finnish',
         'et': 'Estonian',
         'sv': 'Swedish',
-        'en': 'English'
+        'en': 'English',
+        'es': 'Spanish'
     }
     
     client = anthropic.Anthropic(api_key=api_key)
@@ -134,8 +135,8 @@ def translate_presentation(input_file, target_lang, verbose=False):
 def main():
     parser = argparse.ArgumentParser(description='Translate PowerPoint content to specified language')
     parser.add_argument('input_file', help='Input PowerPoint file')
-    parser.add_argument('language', choices=['ru', 'fi', 'et', 'sv', 'en'], 
-                        help='Target language (ru=Russian, fi=Finnish, et=Estonian, sv=Swedish, en=English)')
+    parser.add_argument('language', choices=['ru', 'fi', 'et', 'sv', 'en', 'es'], 
+                        help='Target language (ru=Russian, fi=Finnish, et=Estonian, sv=Swedish, en=English, es=Spanish)')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Enable verbose debug output')
     
