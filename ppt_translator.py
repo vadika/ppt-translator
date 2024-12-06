@@ -25,6 +25,7 @@ def translate_text(text, target_lang, shape_type=""):
         'en': 'English',
         'es': 'Spanish',
         'de': 'German',
+        'fi': 'Finnish',
         'lv': 'Latvian'
     }
     
