@@ -2,7 +2,7 @@ import argparse
 from pptx import Presentation
 from pptx.shapes.placeholder import PlaceholderGraphicFrame
 import os
-import anthropic
+import requests
 
 def translate_text(text, target_lang, shape_type=""):
     if not text.strip():  # Skip empty or whitespace-only text
@@ -12,9 +12,9 @@ def translate_text(text, target_lang, shape_type=""):
     print(f"Original: '{text[:50]}{'...' if len(text) > 50 else ''}'")
     
     # Get API key from environment
-    api_key = os.getenv('ANTHROPIC_API_KEY')
+    api_key = os.getenv('OPENROUTER_API_KEY')
     if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+        raise ValueError("OPENROUTER_API_KEY environment variable not set")
     
     # Map language codes to full names
     lang_map = {
@@ -29,17 +29,26 @@ def translate_text(text, target_lang, shape_type=""):
         'lv': 'Latvian'
     }
     
-    client = anthropic.Anthropic(api_key=api_key)
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "HTTP-Referer": "https://github.com/",  # Required for OpenRouter
+        "X-Title": "PPT Translator"  # Optional but recommended
+    }
+    
     try:
         prompt = f"Translate the following text to {lang_map[target_lang]}. Only return the translation, no explanations:\n\n{text}"
-        message = client.messages.create(
-            model="claude-3-opus-20240229",
-            max_tokens=1000,
-            temperature=0,
-            messages=[{"role": "user", "content": prompt}]
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json={
+                "model": "anthropic/claude-3-opus",
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 1000,
+                "temperature": 0
+            }
         )
-        # Extract the text content and ensure it's a string
-        translated = message.content[0].text if isinstance(message.content, list) else str(message.content)
+        response.raise_for_status()
+        translated = response.json()["choices"][0]["message"]["content"]
         print(f"Translated: '{translated[:50]}{'...' if len(translated) > 50 else ''}'")
         return translated
     except Exception as e:
